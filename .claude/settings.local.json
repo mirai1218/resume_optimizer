@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5175)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/uploads/test)",
+      "Bash(sleep 5 && cat /c/Users/forev/AppData/Local/Temp/claude/d--resume-optimizer/4c4f3479-f3bb-4912-9aa2-916a8b42dcdc/tasks/b9qaytijc.output)",
+      "Read(//c/Users/forev/AppData/Local/Temp/claude/d--resume-optimizer/4c4f3479-f3bb-4912-9aa2-916a8b42dcdc/tasks/**)",
+      "Bash(lsof -ti:3001)",
+      "Bash(xargs kill -9)",
+      "Bash(lsof -ti:5173)",
+      "Bash(lsof -ti:5174)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 33848 //F)",
+      "Bash(taskkill //PID 17636 //F)",
+      "Bash(taskkill //PID 35092 //F)"
+    ]
+  }
+}
