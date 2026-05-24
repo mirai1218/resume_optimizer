@@ -1,9 +1,4 @@
-import { parseResume } from '../server/agents/resumeAgent.js';
-import { parseJD } from '../server/agents/jdAgent.js';
-import { calculateMatch } from '../server/agents/matchAgent.js';
-import { generateSuggestions } from '../server/agents/suggestionAgent.js';
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -14,17 +9,26 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { parseResume } = await import('../server/agents/resumeAgent.js');
+    const { parseJD } = await import('../server/agents/jdAgent.js');
+    const { calculateMatch } = await import('../server/agents/matchAgent.js');
+    const { generateSuggestions } = await import('../server/agents/suggestionAgent.js');
+
     const [resumeData, jdData] = await Promise.all([
-      parseResume(resumeText),
-      parseJD(jdText),
+      parseResume(resumeText).catch(e => { throw Object.assign(e, { step: 'parseResume' }); }),
+      parseJD(jdText).catch(e => { throw Object.assign(e, { step: 'parseJD' }); }),
     ]);
 
-    const matchResult = await calculateMatch(resumeData, jdData);
-    const suggestions = await generateSuggestions(resumeData, jdData, matchResult, resumeText);
+    const matchResult = await calculateMatch(resumeData, jdData).catch(e => { throw Object.assign(e, { step: 'calculateMatch' }); });
+    const suggestions = await generateSuggestions(resumeData, jdData, matchResult, resumeText).catch(e => { throw Object.assign(e, { step: 'generateSuggestions' }); });
 
     return res.json({ success: true, resumeData, jdData, matchResult, suggestions });
   } catch (error) {
     console.error('Analysis error:', error);
-    return res.status(500).json({ error: 'Analysis failed' });
+    return res.status(500).json({
+      error: 'Analysis failed',
+      message: error.message,
+      step: error.step || 'unknown',
+    });
   }
-}
+};

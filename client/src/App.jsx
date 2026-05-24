@@ -56,13 +56,13 @@ function App() {
       : null;
 
   const handleAnalyze = async (resumeText, jdText, jdName, profileName, fileUrl, fileName, explicitProfileId) => {
-    const response = await fetch('/api/analysis/analyze', {
+    const response = await fetch('/api/analysis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resumeText, jdText }),
     });
     const data = await response.json();
-    if (!data.success) throw new Error('Analysis failed');
+    if (!data.success) throw new Error(data.error || 'Analysis failed');
 
     const matchSummary =
       data.matchResult?.overall_summary?.slice(0, 80) || '暂无摘要';

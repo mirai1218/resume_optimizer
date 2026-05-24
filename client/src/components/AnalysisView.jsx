@@ -49,7 +49,7 @@ export default function AnalysisView({ profile, onAnalyze, onViewResume }) {
     formData.append('resume', file);
 
     try {
-      const response = await fetch('/api/resume/upload', {
+      const response = await fetch('/api/resume', {
         method: 'POST',
         body: formData,
       });
@@ -60,7 +60,7 @@ export default function AnalysisView({ profile, onAnalyze, onViewResume }) {
         if (data.fileName) setResumeFileName(data.fileName);
         setActiveTab('upload');
       } else {
-        alert('文件解析失败');
+        alert('文件解析失败: ' + (data.error || 'unknown'));
       }
     } catch {
       alert('上传失败');
