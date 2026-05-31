@@ -14,16 +14,31 @@ router.post('/analyze', async (req, res) => {
     }
 
     // 前两个Agent并行
-    const [resumeData, jdData] = await Promise.all([
+    const [resumeResult, jdResult] = await Promise.all([
       parseResume(resumeText),
       parseJD(jdText)
     ]);
 
+    // 适配 resumeAgent 返回格式（兼容新结构）
+    const resumeData = {
+      skills: resumeResult.skills || [],
+      experiences: resumeResult.experiences || [],
+      projects: resumeResult.projects || [],
+      basic: resumeResult.basic || {}
+    };
+
+    // 适配 jdAgent 返回格式（兼容新结构）
+    const jdData = {
+      requirements: jdResult.requirements || { must: [], preferred: [], bonus_soft_skill: [] },
+      responsibilities: jdResult.responsibilities || []
+    };
+
     // 计算匹配度
     const matchResult = await calculateMatch(resumeData, jdData);
 
-    // 生成建议
-    const suggestions = await generateSuggestions(resumeData, jdData, matchResult, resumeText);
+    // 生成建议（suggestionAgent 返回 { content, status }）
+    const suggestionResult = await generateSuggestions(resumeData, jdData, matchResult, resumeText);
+    const suggestions = suggestionResult.content || '';
 
     res.json({ success: true, resumeData, jdData, matchResult, suggestions });
   } catch (error) {

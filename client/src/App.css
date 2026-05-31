@@ -1433,6 +1433,22 @@ body {
   font-size: 0.95rem;
 }
 
+.soft-skill-tips {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-secondary);
+}
+
+.soft-skill-tips p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 0.95rem;
+}
+
 /* Suggestions */
 .suggestions {
   background: var(--bg-secondary);

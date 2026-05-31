@@ -178,6 +178,12 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
                 <p>{result.matchResult.overall_summary}</p>
               </div>
             )}
+            {result.matchResult.soft_skill_tips && (
+              <div className="soft-skill-tips">
+                <h3 className="summary-title">面试准备提示</h3>
+                <p>{result.matchResult.soft_skill_tips}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
