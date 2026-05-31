@@ -3,19 +3,51 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const client = new OpenAI({
+// ==================== 配置化管理（便于维护/切换模型） ====================
+const AI_CONFIG = {
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: 'https://api.deepseek.com',
+  model: 'deepseek-chat',
+  temperature: 0.1, // 极低随机性，保证优化建议稳定
+  maxTokens: 8000, // 优化建议内容较长，调高上限
+};
+
+// 初始化客户端
+const client = new OpenAI({
+  apiKey: AI_CONFIG.apiKey,
+  baseURL: AI_CONFIG.baseURL,
 });
 
-const MODEL = 'deepseek-chat';
-
+// ==================== 核心优化函数 ====================
 export async function generateSuggestions(resumeData, jdData, matchResult, resumeText) {
-  const response = await client.chat.completions.create({
-    model: MODEL,
-    messages: [{
-      role: 'user',
-      content: `你是专业简历优化师，基于前面的匹配差距结果，围绕岗位任职要求+日常工作职责改写简历内容。
+  // 输入校验
+  if (!resumeText || !jdData || !matchResult) {
+    return {
+      content: '缺少必要的输入数据',
+      status: 'error'
+    };
+  }
+
+  // 提取硬技能要求（must + preferred），软技能不参与优化建议
+  const hardRequirements = [
+    ...(jdData.requirements?.must || []),
+    ...(jdData.requirements?.preferred || [])
+  ];
+  const softSkills = jdData.requirements?.bonus_soft_skill || [];
+
+  try {
+    const response = await client.chat.completions.create({
+      model: AI_CONFIG.model,
+      temperature: AI_CONFIG.temperature,
+      max_tokens: AI_CONFIG.maxTokens,
+      messages: [{
+        role: 'user',
+        content: `你是专业简历优化师，基于前面的匹配差距结果，围绕岗位硬性要求和日常工作职责改写简历内容。
+
+【重要】软技能优化限制：
+- bonus_soft_skill 中的软技能要求（如沟通能力、团队合作、学习能力等）简历难以体现
+- 优化建议只围绕硬技能（must + preferred）和工作场景展开
+- 不要生成"加强沟通能力"、"展示团队合作精神"等软技能相关的优化建议
 
 改写硬性规则：
 1. 忠于用户真实经历，严禁编造虚假项目、工作内容与成果
@@ -56,9 +88,26 @@ export async function generateSuggestions(resumeData, jdData, matchResult, resum
 
 传入数据：
 简历原始内容：${resumeText}
-岗位全部信息：${JSON.stringify(jdData, null, 2)}
+岗位硬性要求（must + preferred）：${JSON.stringify(hardRequirements, null, 2)}
+岗位职责：${JSON.stringify(jdData.responsibilities || [], null, 2)}
 匹配差距结果：${JSON.stringify(matchResult, null, 2)}`
-    }]
-  });
-  return response.choices[0].message.content;
+      }]
+    });
+
+    const rawContent = response.choices[0]?.message?.content || '';
+
+    return {
+      content: rawContent,
+      raw: rawContent,
+      status: 'success'
+    };
+
+  } catch (error) {
+    console.error('优化建议生成失败:', error.message);
+    return {
+      content: `优化建议生成失败：${error.message}`,
+      raw: '',
+      status: 'error'
+    };
+  }
 }
