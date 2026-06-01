@@ -1,13 +1,14 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import logger from '../utils/logger.js';
 
 dotenv.config();
 
 // ==================== 配置化管理（便于维护/切换模型） ====================
 const AI_CONFIG = {
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: 'https://api.minimaxi.com/anthropic',
-  model: 'MiniMax-M2.7',
+  baseURL: 'https://api.deepseek.com',
+  model: 'deepseek-chat',
   temperature: 0.1,
   maxTokens: 4000,
 };
@@ -161,7 +162,7 @@ export async function calculateMatch(resumeData, jdData) {
     return finalResult;
 
   } catch (error) {
-    console.error('匹配分析失败:', error.message);
+    logger.error({ error_type: 'match_error', message: error.message }, '匹配分析失败');
     return {
       skill_match: [],
       scene_match: [],

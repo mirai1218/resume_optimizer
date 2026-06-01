@@ -1,13 +1,14 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
+import logger from '../utils/logger.js';
 
 dotenv.config();
 
 // ==================== 配置化管理（便于维护/切换模型） ====================
 const AI_CONFIG = {
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: 'https://api.minimaxi.com/anthropic',
-  model: 'MiniMax-M2.7',
+  baseURL: 'https://api.deepseek.com',
+  model: 'deepseek-chat',
   temperature: 0.1,
   maxTokens: 8000,
 };
@@ -207,7 +208,7 @@ ${text.trim()}
 
   } catch (error) {
     // 4. 全链路异常捕获（API错误 + JSON解析错误 + 未知错误）
-    console.error('简历解析失败:', error.message);
+    logger.error({ error_type: 'parse_error', message: error.message }, '简历解析失败');
     return {
       basic: { education: '', work_years: '', job_type: '' },
       skills: [],
