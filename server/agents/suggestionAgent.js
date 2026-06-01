@@ -88,10 +88,17 @@ export async function generateSuggestions(resumeData, jdData, matchResult, resum
   项目整体优化总结：xxx
 
 传入数据：
-简历原始内容：${resumeText}
+简历基本信息：${JSON.stringify(resumeData.basic, null, 2)}
+简历技能栏：${JSON.stringify(resumeData.skills || [], null, 2)}
+简历项目经历：${JSON.stringify(resumeData.projects || [], null, 2)}
 岗位硬性要求（must + preferred）：${JSON.stringify(hardRequirements, null, 2)}
 岗位职责：${JSON.stringify(jdData.responsibilities || [], null, 2)}
-匹配差距结果：${JSON.stringify(matchResult, null, 2)}`
+匹配差距结果：${JSON.stringify(matchResult, null, 2)}
+
+**重要提醒**：
+1. 优先使用 resumeData.basic.education 作为专业依据，格式为「学历|专业」
+2. 不要从 resumeText 推测专业信息，只使用上述传入的 resumeData.basic.education
+3. 若 education 显示「未明确写出专业」，匹配分析时按实际读到的信息处理，不额外脑补`
       }]
     });
 
