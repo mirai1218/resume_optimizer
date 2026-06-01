@@ -57,9 +57,10 @@ export async function generateSuggestions(resumeData, jdData, matchResult, resum
 4. 技能栏只精简重复、无关冗余话术，不无故删除本人真实掌握的技术与工具
 5. 自然融入岗位必备关键词，描述贴合岗位实际工作场景，能力优势隐含在行为描述里，不单独罗列空洞话术
 6. 严格区分技能栏与项目内容，分区域做优化建议
+7. **无需优化则跳过**：如果原文已符合岗位要求，无需写出该条修改；只输出真正需要改的内容，不要输出"原文已符合要求"之类的无意义修改项
 
 【格式强制要求】
-1. 开头不要写任何套话，直接从第一个项目开始输出
+1. 开头不要写任何套话，直接从第一个需要修改的内容开始输出（若所有内容都无需修改，输出「所有内容已符合岗位要求，无需优化」）
 2. 不要使用任何 emoji，只用文字和排版表达结构
 3. 项目级整体打包：同一个项目的所有修改，必须放在同一个项目分组里，项目名仅出现一次，禁止拆成多个独立部分
 4. 三层递进结构：每个项目的输出必须包含3部分：
@@ -71,6 +72,17 @@ export async function generateSuggestions(resumeData, jdData, matchResult, resum
 7. 优化后的内容必须精简，单条描述控制在2行以内
 
 输出格式示例：
+[技能栏] 技能栏优化
+
+  技能优化概览：本栏无需调整 / 本栏已精简重复技能 / 本栏建议补充xxx
+
+  [修改1] xxx（如无需修改，此处输出「本栏无需调整」）
+  原文：xxx
+    优化后：xxx
+    改写思路：xxx
+
+  技能栏优化总结：xxx（如无需修改，输出「技能栏已符合岗位要求」）
+
 [项目] xxx
 
   项目优化概览：xxx
@@ -87,9 +99,16 @@ export async function generateSuggestions(resumeData, jdData, matchResult, resum
 
   项目整体优化总结：xxx
 
+**重要**：
+1. 先输出技能栏优化，再输出项目优化
+2. 技能栏若有修改，必须放在 [技能栏] 分组里，不得遗漏
+3. 项目优化按原有规则执行
+4. 若所有内容都无需修改，输出「所有内容已符合岗位要求，无需优化」，不输出任何 [修改X] 条目
+
 传入数据：
 简历基本信息：${JSON.stringify(resumeData.basic, null, 2)}
-简历技能栏：${JSON.stringify(resumeData.skills || [], null, 2)}
+简历个人技能模块原文：${resumeData.skills_section || '（简历中无个人技能模块）'}
+简历技能关键词（仅供参考，不直接用于技能栏优化）：${JSON.stringify(resumeData.skills || [], null, 2)}
 简历项目经历：${JSON.stringify(resumeData.projects || [], null, 2)}
 岗位硬性要求（must + preferred）：${JSON.stringify(hardRequirements, null, 2)}
 岗位职责：${JSON.stringify(jdData.responsibilities || [], null, 2)}

@@ -4,12 +4,26 @@ export function parseMarkdown(text) {
   const output = [];
   let i = 0;
   let inProject = false;
+  let inSkillSection = false;
 
   while (i < lines.length) {
     const line = lines[i].trim();
 
-    if (line.startsWith('[项目]')) {
+    if (line.startsWith('[技能栏]')) {
+      if (inSkillSection) output.push('</details>');
       if (inProject) output.push('</details>');
+      inSkillSection = true;
+      inProject = false;
+      const name = line.replace('[技能栏]', '').trim() || '技能栏';
+      output.push(`<details class="md-skill-section"><summary>${name}</summary>`);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('[项目]')) {
+      if (inSkillSection) output.push('</details>');
+      if (inProject) output.push('</details>');
+      inSkillSection = false;
       inProject = true;
       const name = line.replace('[项目]', '').trim();
       output.push(`<details class="md-project"><summary>${name}</summary>`);
@@ -25,7 +39,7 @@ export function parseMarkdown(text) {
       let j = i + 1;
       while (j < lines.length) {
         const nextLine = lines[j].trim();
-        if (nextLine.startsWith('[修改') || nextLine.startsWith('[项目]') || nextLine.startsWith('项目优化概览：') || nextLine.startsWith('项目整体优化总结：')) {
+        if (nextLine.startsWith('[修改') || nextLine.startsWith('[项目]') || nextLine.startsWith('[技能栏]') || nextLine.startsWith('项目优化概览：') || nextLine.startsWith('项目整体优化总结：') || nextLine.startsWith('技能优化概览：') || nextLine.startsWith('技能栏优化总结：')) {
           break;
         }
         if (nextLine === '') {
@@ -51,6 +65,18 @@ export function parseMarkdown(text) {
       continue;
     }
 
+    if (line.startsWith('技能优化概览：')) {
+      output.push(`<div class="md-overview">${line}</div>`);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('技能栏优化总结：')) {
+      output.push(`<div class="md-summary">${line}</div>`);
+      i++;
+      continue;
+    }
+
     if (line.startsWith('项目优化概览：')) {
       output.push(`<div class="md-overview">${line}</div>`);
       i++;
@@ -71,6 +97,7 @@ export function parseMarkdown(text) {
     i++;
   }
 
+  if (inSkillSection) output.push('</details>');
   if (inProject) output.push('</details>');
   return output.join('\n');
 }

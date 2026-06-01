@@ -1634,7 +1634,8 @@ body {
   color: var(--text-secondary);
 }
 
-.md-project {
+.md-project,
+.md-skill-section {
   margin-top: 1.75rem;
   margin-bottom: 0;
   background: var(--bg-secondary);
@@ -1646,7 +1647,8 @@ body {
   position: relative;
 }
 
-.md-project::before {
+.md-project::before,
+.md-skill-section::before {
   content: '"';
   position: absolute;
   top: -10px;
@@ -1659,11 +1661,13 @@ body {
   pointer-events: none;
 }
 
-.md-project:first-child {
+.md-project:first-child,
+.md-skill-section:first-child {
   margin-top: 0;
 }
 
-.md-project summary {
+.md-project summary,
+.md-skill-section summary {
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--text-primary);
@@ -1675,16 +1679,19 @@ body {
   user-select: none;
 }
 
-.md-project summary::-webkit-details-marker {
+.md-project summary::-webkit-details-marker,
+.md-skill-section summary::-webkit-details-marker {
   display: none;
 }
 
-.md-project summary::marker {
+.md-project summary::marker,
+.md-skill-section summary::marker {
   display: none;
   content: '';
 }
 
-.md-project summary::before {
+.md-project summary::before,
+.md-skill-section summary::before {
   content: '▶';
   display: inline-block;
   margin-right: 0.5rem;
@@ -1693,11 +1700,13 @@ body {
   transition: transform 0.2s ease;
 }
 
-.md-project[open] > summary::before {
+.md-project[open] > summary::before,
+.md-skill-section[open] > summary::before {
   transform: rotate(90deg);
 }
 
-.md-project[open] > summary {
+.md-project[open] > summary,
+.md-skill-section[open] > summary {
   margin-bottom: 1rem;
 }
 

@@ -22,6 +22,7 @@ module.exports = async function handler(req, res) {
     // 适配 resumeAgent 返回格式（兼容新结构）
     const resumeData = {
       skills: resumeResult.skills || [],
+      skills_section: resumeResult.skills_section || '',
       experiences: resumeResult.experiences || [],
       projects: resumeResult.projects || [],
       basic: resumeResult.basic || {}

@@ -67,8 +67,8 @@ export async function parseResume(text) {
 1. 绝对禁止编造、脑补、推测任何信息！简历中没有的内容统一返回空字符串 "" 或空数组 []，严禁使用 null
 2. 项目经历中每一个独立小标题/分段内容，必须单独拆分为一条 responsibility，**绝对不能合并多条内容**
 3. 最终只输出纯 JSON 文本，禁止添加任何解释、注释、Markdown、多余文字、换行修饰
-4. 技能仅提取技术、框架、编程语言、工具，过滤主观描述类文字
-5. **内容精简规则**：experiences.content 和 responsibilities.text 需精简提炼，保留动词+动作+成果，每条不超过100字，删除冗长描述和重复信息
+4. **skills 字段**：仅提取技术、框架、编程语言、工具名称，过滤主观描述类文字（如"熟悉""了解"等修饰词不要）
+5. **skills_section 字段**：保留"个人技能/专业技能"模块的完整原文段落，包括所有描述性文字，不打散、不精简、不过滤
 
 # 输出固定结构（不可修改字段名、层级）
 {
@@ -78,6 +78,7 @@ export async function parseResume(text) {
     "job_type": ""
   },
   "skills": [],
+  "skills_section": "",
   "experiences": [
     {
       "company": "",
@@ -114,12 +115,25 @@ education 字段格式：「学历|专业」，示例：
 3. 若简历只写「本科」而未写明专业，education 填写「本科|未明确写出专业」
 4. 若简历明确写了专业名称（如「电子信息工程」「计算机科学」），必须完整保留
 
+# 【个人技能/专业技能模块提取规则】
+skills_section 字段：
+1. 必须完整保留原文段落格式，包括换行符（\n）
+2. 若简历中无"个人技能"或"专业技能"模块，skills_section 填写空字符串 ""
+3. 不要打散或精简原文，保持原段落结构
+4. skills_section 与 skills 是两个不同字段：
+   - skills：技能关键词列表（如 ["Java", "MySQL"]）
+   - skills_section：个人技能模块的完整原文段落
+
 # 【示范样例参考】
 ## 示例输入简历（仅用来学习规则，不要解析本段内容）
 个人信息：硕士，5年后端开发经验，求职全职岗位，专业：电子信息工程
 掌握技能：Java、SpringBoot、MySQL、Redis、Git、Linux
 工作经历1：XX科技 | 后端开发 | 2022.03-至今
 负责业务接口开发、数据存储优化、线上问题排查
+
+个人技能：
+熟悉 Java、SpringBoot 框架开发，了解微服务架构设计；掌握 MySQL、Redis 数据库操作。
+具备基本的 SQL 优化能力，能根据执行计划分析慢查询并优化。
 
 项目经历：电商秒杀系统 | 2022.06-2022.10
 1. 项目简介：面向商城的高并发秒杀业务系统
@@ -135,6 +149,7 @@ education 字段格式：「学历|专业」，示例：
     "job_type": "全职"
   },
   "skills": ["Java", "SpringBoot", "MySQL", "Redis", "Git", "Linux"],
+  "skills_section": "熟悉 Java、SpringBoot 框架开发，了解微服务架构设计；掌握 MySQL、Redis 数据库操作。\n具备基本的 SQL 优化能力，能根据执行计划分析慢查询并优化。",
   "experiences": [
     {
       "company": "XX科技",
@@ -190,6 +205,7 @@ ${text.trim()}
         job_type: result.basic?.job_type || '',
       },
       skills: uniqueArray(result.skills || []),
+      skills_section: result.skills_section || '',
       experiences: result.experiences?.map(item => ({
         company: item.company || '',
         position: item.position || '',
@@ -217,6 +233,7 @@ ${text.trim()}
     return {
       basic: { education: '', work_years: '', job_type: '' },
       skills: [],
+      skills_section: '',
       experiences: [],
       projects: [],
       raw: error.message,
