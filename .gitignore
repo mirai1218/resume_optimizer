@@ -6,5 +6,12 @@ server/uploads/
 *.log
 .DS_Store
 Thumbs.db
-
 .vercel
+
+# 腾讯云 SCF 配置（不推送到 GitHub）
+functions/
+cloudbaserc.json
+
+# 本地文档和配置
+PRD.md
+.claude/

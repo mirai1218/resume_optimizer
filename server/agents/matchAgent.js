@@ -6,9 +6,9 @@ dotenv.config();
 // ==================== 配置化管理（便于维护/切换模型） ====================
 const AI_CONFIG = {
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: 'https://api.deepseek.com',
-  model: 'deepseek-chat',
-  temperature: 0.1, // 极低随机性，保证匹配结果稳定
+  baseURL: 'https://api.minimaxi.com/v1',
+  model: 'MiniMax-M2.7',
+  temperature: 0.1,
   maxTokens: 4000,
 };
 
