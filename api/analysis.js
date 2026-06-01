@@ -14,13 +14,30 @@ module.exports = async function handler(req, res) {
     const { calculateMatch } = await import('../server/agents/matchAgent.js');
     const { generateSuggestions } = await import('../server/agents/suggestionAgent.js');
 
-    const [resumeData, jdData] = await Promise.all([
+    const [resumeResult, jdResult] = await Promise.all([
       parseResume(resumeText).catch(e => { throw Object.assign(e, { step: 'parseResume' }); }),
       parseJD(jdText).catch(e => { throw Object.assign(e, { step: 'parseJD' }); }),
     ]);
 
+    // 适配 resumeAgent 返回格式（兼容新结构）
+    const resumeData = {
+      skills: resumeResult.skills || [],
+      experiences: resumeResult.experiences || [],
+      projects: resumeResult.projects || [],
+      basic: resumeResult.basic || {}
+    };
+
+    // 适配 jdAgent 返回格式（兼容新结构）
+    const jdData = {
+      requirements: jdResult.requirements || { must: [], preferred: [], bonus_soft_skill: [] },
+      responsibilities: jdResult.responsibilities || []
+    };
+
     const matchResult = await calculateMatch(resumeData, jdData).catch(e => { throw Object.assign(e, { step: 'calculateMatch' }); });
-    const suggestions = await generateSuggestions(resumeData, jdData, matchResult, resumeText).catch(e => { throw Object.assign(e, { step: 'generateSuggestions' }); });
+
+    // 生成建议（suggestionAgent 返回 { content, status }）
+    const suggestionResult = await generateSuggestions(resumeData, jdData, matchResult, resumeText).catch(e => { throw Object.assign(e, { step: 'generateSuggestions' }); });
+    const suggestions = suggestionResult.content || '';
 
     return res.json({ success: true, resumeData, jdData, matchResult, suggestions });
   } catch (error) {
