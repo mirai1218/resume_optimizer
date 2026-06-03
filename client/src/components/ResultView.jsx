@@ -32,10 +32,15 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
   const [collapseSkill, setCollapseSkill] = useState(false);
   const [collapseScene, setCollapseScene] = useState(false);
 
-  // DEBUG
-  console.log('[ResultView] entry?.id:', entry?.id, 'entry:', entry);
+  // 评分状态
+  const [userRating, setUserRating] = useState(null);
+  const [hasRated, setHasRated] = useState(false);
 
-  const { reportMatchAccuracy, reportSuggestionView } = useAnalytics(entry?.id);
+  const handleRating = (score) => {
+    setUserRating(score);
+    setHasRated(true);
+    reportRating(score);
+  };
 
   // 追踪建议面板展开
   const suggestionViewTimerRef = useRef(null);
@@ -251,6 +256,24 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
             )}
           </div>
         )}
+      </div>
+
+      {/* 用户评分 */}
+      <div className="rating-section">
+        <div className="rating-label">这次分析对你有帮助吗？</div>
+        <div className="rating-stars">
+          {[1, 2, 3, 4, 5].map((score) => (
+            <button
+              key={score}
+              className={`rating-star ${userRating >= score ? 'active' : ''}`}
+              onClick={() => handleRating(score)}
+              disabled={hasRated}
+            >
+              ★
+            </button>
+          ))}
+        </div>
+        {hasRated && <div className="rating-thanks">感谢你的反馈！</div>}
       </div>
     </section>
   );

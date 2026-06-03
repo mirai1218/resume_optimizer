@@ -2109,6 +2109,54 @@ body {
   }
 }
 
+/* ===== Rating Section ===== */
+.rating-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.rating-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.rating-star {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--border-dark);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0.2rem;
+}
+
+.rating-star:hover,
+.rating-star.active {
+  color: var(--accent-secondary);
+  transform: scale(1.1);
+}
+
+.rating-star:disabled {
+  cursor: default;
+}
+
+.rating-thanks {
+  margin-top: 0.75rem;
+  font-size: 0.88rem;
+  color: var(--accent-primary);
+}
+
 @media (max-width: 640px) {
   .header-inner {
     padding: 0 1rem;
