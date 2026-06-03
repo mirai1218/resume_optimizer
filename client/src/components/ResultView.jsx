@@ -36,27 +36,49 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
   const [userRating, setUserRating] = useState(null);
   const [hasRated, setHasRated] = useState(false);
 
+  // DEBUG: 检查 reportMatchAccuracy 是否为函数
+  const safeReport = useAnalytics(entry?.id);
+  const reportMatchAccuracy = safeReport?.reportMatchAccuracy;
+  const reportSuggestionView = safeReport?.reportSuggestionView;
+  const reportRating = safeReport?.reportRating;
+
+  console.log('[ResultView] reportMatchAccuracy:', typeof reportMatchAccuracy, entry?.id);
+
   const handleRating = (score) => {
     setUserRating(score);
     setHasRated(true);
-    reportRating(score);
+    reportRating?.(score);
   };
 
   // 追踪建议面板展开
   const suggestionViewTimerRef = useRef(null);
   useEffect(() => {
     if (!collapseSuggestions) {
-      // 用户展开建议面板，开始计时
       suggestionViewTimerRef.current = Date.now();
     } else if (suggestionViewTimerRef.current) {
-      // 用户收起建议面板，上报停留时长
       const duration = Date.now() - suggestionViewTimerRef.current;
-      reportSuggestionView(duration);
+      reportSuggestionView?.(duration);
       suggestionViewTimerRef.current = null;
     }
   }, [collapseSuggestions, reportSuggestionView]);
 
   const togglePanel = (setter) => setter((v) => !v);
+
+  // 防护：确保 fullResult 存在
+  if (!entry?.fullResult) {
+    return (
+      <section className="result-section">
+        <div className="result-panel">
+          <div className="panel-body">
+            <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+              数据加载中或数据格式异常...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   const result = entry.fullResult;
 
   return (
@@ -138,12 +160,12 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
                           <div className="match-feedback-btns">
                             <button
                               className="feedback-btn"
-                              onClick={() => reportMatchAccuracy('skill', i, true)}
+                              onClick={() => reportMatchAccuracy?.('skill', i, true)}
                               title="准确"
                             >✓</button>
                             <button
                               className="feedback-btn inaccurate"
-                              onClick={() => reportMatchAccuracy('skill', i, false)}
+                              onClick={() => reportMatchAccuracy?.('skill', i, false)}
                               title="不准确"
                             >✗</button>
                           </div>
@@ -184,12 +206,12 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
                           <div className="match-feedback-btns">
                             <button
                               className="feedback-btn"
-                              onClick={() => reportMatchAccuracy('scene', i, true)}
+                              onClick={() => reportMatchAccuracy?.('scene', i, true)}
                               title="准确"
                             >✓</button>
                             <button
                               className="feedback-btn inaccurate"
-                              onClick={() => reportMatchAccuracy('scene', i, false)}
+                              onClick={() => reportMatchAccuracy?.('scene', i, false)}
                               title="不准确"
                             >✗</button>
                           </div>
