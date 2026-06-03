@@ -15,7 +15,8 @@
       "Bash(netstat -ano)",
       "Bash(taskkill //PID 33848 //F)",
       "Bash(taskkill //PID 17636 //F)",
-      "Bash(taskkill //PID 35092 //F)"
+      "Bash(taskkill //PID 35092 //F)",
+      "Bash(MSYS_NO_PATHCONV=1 tcb service create -f analysis -p //api/analysis -e resume-optimizer-d9e7akc95bfbf05)"
     ]
   }
 }

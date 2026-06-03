@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { parseMarkdown } from '../utils/markdown.js';
+import { useAnalytics } from '../hooks/useAnalytics.js';
 
 const STATUS_ORDER = { '存在缺失': 0, '部分匹配': 1, '完全匹配': 2 };
 const GROUP_META = {
@@ -30,6 +31,25 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
   const [collapseSuggestions, setCollapseSuggestions] = useState(true);
   const [collapseSkill, setCollapseSkill] = useState(false);
   const [collapseScene, setCollapseScene] = useState(false);
+
+  // DEBUG
+  console.log('[ResultView] entry?.id:', entry?.id, 'entry:', entry);
+
+  const { reportMatchAccuracy, reportSuggestionView } = useAnalytics(entry?.id);
+
+  // 追踪建议面板展开
+  const suggestionViewTimerRef = useRef(null);
+  useEffect(() => {
+    if (!collapseSuggestions) {
+      // 用户展开建议面板，开始计时
+      suggestionViewTimerRef.current = Date.now();
+    } else if (suggestionViewTimerRef.current) {
+      // 用户收起建议面板，上报停留时长
+      const duration = Date.now() - suggestionViewTimerRef.current;
+      reportSuggestionView(duration);
+      suggestionViewTimerRef.current = null;
+    }
+  }, [collapseSuggestions, reportSuggestionView]);
 
   const togglePanel = (setter) => setter((v) => !v);
   const result = entry.fullResult;
@@ -110,6 +130,18 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
                           <span className={`status-badge ${item.resume_status === '完全匹配' ? 'matched' : item.resume_status === '部分匹配' ? 'partial' : 'gap'}`}>
                             {item.resume_status}
                           </span>
+                          <div className="match-feedback-btns">
+                            <button
+                              className="feedback-btn"
+                              onClick={() => reportMatchAccuracy('skill', i, true)}
+                              title="准确"
+                            >✓</button>
+                            <button
+                              className="feedback-btn inaccurate"
+                              onClick={() => reportMatchAccuracy('skill', i, false)}
+                              title="不准确"
+                            >✗</button>
+                          </div>
                         </div>
                         <div className="match-item-demand">{item.job_demand}</div>
                         <div className="match-item-explain">{item.explain}</div>
@@ -144,6 +176,18 @@ export default function ResultView({ entry, profile, onNewAnalysis, onViewResume
                           <span className={`status-badge ${item.resume_status === '完全匹配' ? 'matched' : item.resume_status === '部分匹配' ? 'partial' : 'gap'}`}>
                             {item.resume_status}
                           </span>
+                          <div className="match-feedback-btns">
+                            <button
+                              className="feedback-btn"
+                              onClick={() => reportMatchAccuracy('scene', i, true)}
+                              title="准确"
+                            >✓</button>
+                            <button
+                              className="feedback-btn inaccurate"
+                              onClick={() => reportMatchAccuracy('scene', i, false)}
+                              title="不准确"
+                            >✗</button>
+                          </div>
                         </div>
                         <div className="match-item-demand">{item.job_duty}</div>
                         <div className="match-item-explain">{item.explain}</div>
